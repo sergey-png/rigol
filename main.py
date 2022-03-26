@@ -47,8 +47,11 @@ class RigolAPI:
         self.device.write(":AUToscale")
         return 0
 
+    def kek(self):
+        return self.device.query(":CHANnel1:RANGe?")  # TODO Остановка на 28 странице документации
+
 
 if __name__ == "__main__":
     rigol = RigolAPI()
-    rigol.autoscale_func()
+    print(rigol.kek())
     print("------------END------------")
