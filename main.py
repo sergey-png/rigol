@@ -1,16 +1,27 @@
-# This is a sample Python script.
+import pyvisa as visa
+from time import sleep
+import numpy as np
+from pyvisa import Resource
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+visa.log_to_screen()
+rm = visa.ResourceManager()
+# print(rm.list_resources())
+rigol = rm.list_resources()[0]
+
+#  osc.read osc.write osc.query
+#  You can use visa-shell
+#  To run visa-shell insert command: pyvisa-shell
+#  After opening device You can talk to the device using "write", "read" or "query".
+#  The default end of message is added to each message.
+#  osc.query - method 621 string in pyvisa/resources/messagebased.py
+osc = rm.open_resource(rigol)  # open device to work with
+print(f'QUERY returned answer = {osc.query("*IDN?")}')  # Command to check ID of opened device
+print(f"Opened res = {rm.list_opened_resources()}")
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+def autoscale(oscillator):
+    command = ":AUToscale"
+    oscillator.write(command)
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+print(f"Write to osc = {autoscale(osc)}")
