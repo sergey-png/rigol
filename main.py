@@ -5,6 +5,7 @@ import collections
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import multiprocessing as mp
+import tqdm
 from threading import Thread
 from pathos.multiprocessing import ProcessingPool as Pool
 
@@ -72,6 +73,32 @@ class RigolAPI:
         """
         return float(self.device.query(":MEASure:ITEM? FPHase"))
 
+    def get_data_premable(self):
+        '''
+        Get information about oscilloscope axes.
+
+        Returns:
+            dict: A dictionary containing general oscilloscope axes information.
+        '''
+        pre = self.device.query(':wav:pre?').split(',')
+        pre_dict = {
+            'format': int(pre[0]),
+            'type': int(pre[1]),
+            'points': int(pre[2]),
+            'count': int(pre[3]),
+            'xincrement': float(pre[4]),
+            'xorigin': float(pre[5]),
+            'xreference': float(pre[6]),
+            'yincrement': float(pre[7]),
+            'yorigin': float(pre[8]),
+            'yreference': float(pre[9]),
+        }
+        return pre_dict
+
+
+
+
+
 
 def draw_rphase(mute):
     # kek = RigolAPI()
@@ -124,6 +151,8 @@ if __name__ == "__main__":
 
 
 
-
     print("Created new process")
+
+
+    print(rigol.get_data_premable())
     print("------------END------------")
