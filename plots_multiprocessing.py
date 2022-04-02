@@ -59,7 +59,11 @@ def creating_single_process():
 if __name__ == "__main__":
     process = creating_single_process()
     print("HERE 4 sec")
+
+    a = input("Input number: ")
     sleep(4)
     print(process.is_alive())  # returned True and process will be active until terminated
-    process.terminate()
+
+    # process.terminate()
+
     print("exit...")
