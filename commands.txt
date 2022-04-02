@@ -1,0 +1,16 @@
+#  141 страница. Выдает делей фаз в градусах
+query :MEASure:ITEM? RPHase  # по переднему фронту
+query :MEASure:ITEM? FPHase  # по заднему фронту
+
+
+
+query :MEASure:ITEM? PERiod  # period chanel1
+
+# 136 страница документации. Задаем каналы для сравнения фаз...
+write :MEASure:SETup:PSA CHANel2
+write :MEASure:SETup:PSB CHANel3
+
+
+#  Удаляем все ITEMs (133 страница)
+write :MEASure:CLEar ALL
+

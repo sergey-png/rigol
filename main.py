@@ -1,8 +1,14 @@
 import pyvisa as visa
 from time import sleep
 import numpy as np
+import collections
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+import multiprocessing as mp
+from threading import Thread
+from pathos.multiprocessing import ProcessingPool as Pool
 
-visa.log_to_screen()
+# visa.log_to_screen()
 '''
 #  osc.read osc.write osc.query
 #  You can use visa-shell
@@ -47,11 +53,77 @@ class RigolAPI:
         self.device.write(":AUToscale")
         return 0
 
-    def kek(self):
-        return self.device.query(":CHANnel1:RANGe?")  # TODO Остановка на 28 странице документации
+    def range(self, channel=1):
+        """
+        :param channel: using selected channel
+        :return: current range in selected channel
+        """
+        return self.device.query(f":CHANnel{channel}:RANGe?")  # TODO Остановка на 28 странице документации
 
+    def get_rphase(self):
+        """
+        :return: current // front phase of channel 1 and 2 in degrees
+        """
+        return float(self.device.query(":MEASure:ITEM? RPHase"))
+
+    def get_fphase(self):
+        """
+        :return: current \\ front phase of channel 1 and 2 in degrees
+        """
+        return float(self.device.query(":MEASure:ITEM? FPHase"))
+
+
+def draw_rphase(mute):
+    # kek = RigolAPI()
+
+    # function to update the data
+    def my_function(i):
+        # get data
+        # a = input("Data input: ")
+        rphase_data.popleft()
+        mute.acquire()
+        rphase_data.append(round(rigol.get_rphase(), 3))
+        mute.release()
+        # clear axis
+        ax.cla()
+        # plot rphase_data
+        ax.plot(rphase_data)
+        plt.title(label='Phase Delay')
+        plt.xlabel("Time (100ns / 1_read)")
+        plt.ylabel("Phase Delay (deg)")
+        ax.scatter(len(rphase_data) - 1, rphase_data[-1])
+        ax.text(len(rphase_data) - 1, rphase_data[-1] + 2, "{}°".format(rphase_data[-1]))
+        ax.set_ylim(-180, 180)
+
+    # start collections with zeros
+    rphase_data = collections.deque(np.zeros(100))
+
+    # define and adjust figure
+    fig = plt.figure(figsize=(7, 5), facecolor='#DEDEDE')
+    ax = plt.subplot(111)
+
+    print(ax)
+    ax.set_facecolor('#DEDEDE')
+
+    # animate
+    ani = FuncAnimation(fig, my_function, interval=100)
+    plt.show()
+
+
+rigol = RigolAPI()
 
 if __name__ == "__main__":
-    rigol = RigolAPI()
-    print(rigol.kek())
+    print(float(rigol.range(channel=1)))
+    print(float(rigol.range(channel=2)))
+    print("Main Statistic")
+    # Creating process
+    mutex = mp.Lock()
+    proc1 = mp.Process(target=draw_rphase, daemon=False, args=(mutex,))
+    proc1.start()
+
+
+
+
+
+    print("Created new process")
     print("------------END------------")
