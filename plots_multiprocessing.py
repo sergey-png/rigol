@@ -1,9 +1,9 @@
+import time
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
 import psutil
 import collections
-from time import sleep
 import multiprocessing as mp
 
 
@@ -60,8 +60,7 @@ if __name__ == "__main__":
     process = creating_single_process()
     print("HERE 4 sec")
 
-    a = input("Input number: ")
-    sleep(4)
+    time.sleep(5)
     print(process.is_alive())  # returned True and process will be active until terminated
 
     # process.terminate()

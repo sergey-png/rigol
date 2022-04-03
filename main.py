@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import multiprocessing as mp
 import tqdm
-from threading import Thread
 from rigol1000z import rigol1000z
 
 # visa.log_to_screen()
@@ -74,12 +73,9 @@ class RigolAPI:
 
 
 def draw_rphase(mute):
-    # kek = RigolAPI()
-
     # function to update the data
     def my_function(i):
         # get data
-        # a = input("Data input: ")
         rphase_data.popleft()
         mute.acquire()
         rphase_data.append(round(rigol.get_rphase(), 3))
@@ -104,7 +100,6 @@ def draw_rphase(mute):
 
     print(ax)
     ax.set_facecolor('#DEDEDE')
-
     # animate
     ani = FuncAnimation(fig, my_function, interval=100)
     plt.show()
