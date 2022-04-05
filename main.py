@@ -9,7 +9,7 @@ from threading import Thread, Lock
 import tqdm
 from rigol1000z import rigol1000z
 
-visa.log_to_screen()
+# visa.log_to_screen()
 '''
 #  osc.read osc.write osc.query
 #  To run visa-shell insert command: pyvisa-shell
@@ -27,7 +27,7 @@ class RigolAPI:
         if len(self.rm.list_resources()) > 0:
             self.rigol_device_id = self.rm.list_resources()[0]
             self.device = self.rm.open_resource(self.rigol_device_id)  # Now can self.device. -/read, -/write, -/query
-            self.device.timeout = 30000
+            self.device.timeout = 2000
         else:
             self.rigol_device_id = None
             self.device = None
@@ -72,7 +72,7 @@ class RigolAPI:
         :param channel: using selected channel
         :return: current range in selected channel
         """
-        return self.device.query(f":CHANnel{channel}:RANGe?")  # TODO Остановка на 28 странице документации
+        return self.device.query(f":CHANnel{channel}:RANGe?")
 
     def get_rphase(self):
         """
@@ -93,7 +93,7 @@ class RigolAPI:
 # --------------- GLOBAL VARIABLES ---------------
 rigol = RigolAPI()
 data_channel = [[], []]
-phase_delay = collections.deque([0])
+phase_delay = 0
 
 
 # --------------- GLOBAL VARIABLES ---------------
@@ -107,63 +107,76 @@ def get_data_thread(mute: Lock):
         rigol.device.write(":RUN")
         sleep(1)
         print('I am thread for channels')
-        # mute.acquire()
-        try:
-            rigol.device.write(":STOP")
-            data_channel[0] = rigol.get_data(1)
-            sleep(0.05)
-            data_channel[1] = rigol.get_data(2)
-            sleep(0.05)
-            data: float = rigol.get_rphase()
-            sleep(0.05)
-            phase_delay.append(data)
-        except Exception as exp:
-            print(f"ERROR = {exp}")
-        finally:
-            sleep(0.1)
-            # mute.release()
+        mute.acquire()
+        while True:
+            try:
+                rigol.device.write(":STOP")
+                data_channel[0] = rigol.get_data(1)
+                break
+            except:
+                clearing_device()
+                continue
+        while True:
+            try:
+                data_channel[1] = rigol.get_data(2)
+                break
+            except:
+                clearing_device()
+                continue
+        while True:
+            try:
+                phase_delay = rigol.get_rphase()
+                break
+            except:
+                clearing_device()
+                continue
+        mute.release()
 
 
-def clearing_device(mute: Lock):
+def clearing_device():
+    rigol.device.write(":RUN")
     while True:
         print("I am still here")
-        sleep(5)
-        mute.acquire()
         sleep(0.1)
         try:
             if rigol.rigol_device_id is None:
                 continue
             else:
                 print("RECONNECTED!")
+                break
         except Exception as exp:
             print(f"ОШИБКА ПОДКЛЮЧЕНИЯ = {exp}")
-            sleep(0.5)
-        finally:
-            mute.release()
+            continue
 
 
-def draw_figures():
+def draw_figures(y_signal_limits=None):
     # function to update the data
+    if y_signal_limits is None:
+        y_signal_limits = [-1, 1]
+
     def my_function(i):
         global data_channel, phase_delay
         # get data
         rphase_data.popleft()
-        rphase_data.append(phase_delay[0])
-        if len(phase_delay) > 1:
-            phase_delay.popleft()
-        y_axis_1 = data_channel[0]
-        y_axis_2 = data_channel[1]
+        rphase_data.append(phase_delay)  # phase_delay
+        y_axis_1 = data_channel[0]  # Voltage for channel 1
+        y_axis_2 = data_channel[1]  # Voltage for channel 2
+        if y_axis_1 and y_axis_2:
+            print(f"Амплитуда 1 равна = {max(y_axis_1)-min(y_axis_1)}\n"
+                  f"Амплитуда 2 равна = {max(y_axis_2)-min(y_axis_2)}\n")
         # clear axis
         ax.cla()
         ax2.cla()
         # plot rphase_data
         ax.plot(rphase_data)
-        plt.title(label='Phase Delay and Signals')
+        plt.title(label='Signals')
         plt.xlabel("Time (100ns / 1_read)")
-        plt.ylabel("Phase Delay (deg)")
+        plt.ylabel("kek")
         ax.scatter(len(rphase_data) - 1, rphase_data[-1])
         ax.text(len(rphase_data) - 1, rphase_data[-1] + 2, "{}°".format(rphase_data[-1]))
         ax.set_ylim(-180, 180)
+        ax.set_xlim(0, 120)
+        ax2.set_ylim(y_signal_limits[0], y_signal_limits[1])
 
         # plot signals from Channel 1 and 2
         ax2.plot(y_axis_1, color='r', label='Channel 1')
@@ -185,18 +198,17 @@ def draw_figures():
     ani = FuncAnimation(fig, my_function, interval=200)
     plt.show()
 
+
 if __name__ == "__main__":
     print("Main Statistic")
     # Creating process
     mutex = Lock()
-    # getting_data = Thread(target=get_data_thread, args=(mutex,), daemon=True)
-    # clearing = Thread(target=clearing_device, args=(mutex,), daemon=True)
-    # clearing.start()
-    # getting_data.start()
-    sleep(1)
-    get_data_thread(mutex)
+    getting_data = Thread(target=get_data_thread, args=(mutex,), daemon=True)
+    getting_data.start()
 
     draw_figures()
 
     print("Created new process")
     print("------------END------------")
+
+# TODO По нажатию кнопки в приложении, мы будем записывать: {ТЕКУЩЕЕ РАССТОЯНИЕ, РАЗНОСТЬ ФАЗ, АМПЛИТУДА 1 и 2 сигналов}

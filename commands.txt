@@ -18,8 +18,8 @@ write :MEASure:CLEar ALL
 #235 page stopped
 (open) write :STOP
 (open) write :WAV:SOUR CHAN1
-(open) write :WAV:MODE RAW
-(open) write :WAV:FORM WORD
+(open) write :WAV:MODE NORMal
+(open) write :WAV:FORM ASCii
 (open) write :WAV:STAR 1
 (open) write :WAV:STOP 125000
 (open) query :WAV:DATA?
