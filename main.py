@@ -9,7 +9,7 @@ from threading import Thread, Lock
 import tqdm
 from rigol1000z import rigol1000z
 
-# visa.log_to_screen()
+visa.log_to_screen()
 '''
 #  osc.read osc.write osc.query
 #  To run visa-shell insert command: pyvisa-shell
@@ -27,7 +27,7 @@ class RigolAPI:
         if len(self.rm.list_resources()) > 0:
             self.rigol_device_id = self.rm.list_resources()[0]
             self.device = self.rm.open_resource(self.rigol_device_id)  # Now can self.device. -/read, -/write, -/query
-            self.device.timeout = 10000
+            self.device.timeout = 30000
         else:
             self.rigol_device_id = None
             self.device = None
@@ -81,12 +81,8 @@ class RigolAPI:
         self.device.write(":RUN")
         return float(self.device.query(":MEASure:ITEM? RPHase"))
 
-    def get_data(self, channel=1, mode="NORMal", form="ASCii"):
-        self.device.write(":RUN")
-        self.device.write(":STOP")
+    def get_data(self, channel=1):
         self.device.write(f":WAV:SOUR CHAN{channel}")
-        self.device.write(f":WAV:MODE {mode}")
-        self.device.write(f":WAV:FORM {form}")
         message = self.device.query(":WAV:DATA?")
         result = []
         for element in message[11:].split(','):
@@ -104,42 +100,35 @@ phase_delay = collections.deque([0])
 
 
 def get_data_thread(mute: Lock):
-    global data_channel
+    global data_channel, phase_delay
+    rigol.device.write(f":WAV:MODE NORMal")
+    rigol.device.write(f":WAV:FORM ASCii")
     while True:
+        rigol.device.write(":RUN")
         sleep(1)
         print('I am thread for channels')
-        mute.acquire(blocking=True)
+        # mute.acquire()
         try:
+            rigol.device.write(":STOP")
             data_channel[0] = rigol.get_data(1)
+            sleep(0.05)
             data_channel[1] = rigol.get_data(2)
-        except Exception as exp:
-            print(f"ERROR = {exp}")
-        finally:
-            sleep(0.1)
-            mute.release()
-
-
-def get_rphase_thread(mute: Lock):
-    global phase_delay
-    while True:
-        print(f'Phase delay = {phase_delay}')
-        sleep(0.1)
-        try:
-            mute.acquire(blocking=True)
+            sleep(0.05)
             data: float = rigol.get_rphase()
+            sleep(0.05)
             phase_delay.append(data)
         except Exception as exp:
             print(f"ERROR = {exp}")
         finally:
             sleep(0.1)
-            mute.release()
+            # mute.release()
 
 
 def clearing_device(mute: Lock):
     while True:
         print("I am still here")
         sleep(5)
-        mute.acquire(blocking=True)
+        mute.acquire()
         sleep(0.1)
         try:
             if rigol.rigol_device_id is None:
@@ -196,18 +185,16 @@ def draw_figures():
     ani = FuncAnimation(fig, my_function, interval=200)
     plt.show()
 
-
 if __name__ == "__main__":
     print("Main Statistic")
     # Creating process
     mutex = Lock()
-    getting_data = Thread(target=get_data_thread, args=(mutex,), daemon=True)
-    getting_phase = Thread(target=get_rphase_thread, args=(mutex,), daemon=True)
-    clearing = Thread(target=clearing_device, args=(mutex,), daemon=True)
-    clearing.start()
-    getting_phase.start()
-    getting_data.start()
+    # getting_data = Thread(target=get_data_thread, args=(mutex,), daemon=True)
+    # clearing = Thread(target=clearing_device, args=(mutex,), daemon=True)
+    # clearing.start()
+    # getting_data.start()
     sleep(1)
+    get_data_thread(mutex)
 
     draw_figures()
 
