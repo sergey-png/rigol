@@ -4,10 +4,8 @@ import numpy as np
 from matplotlib.animation import FuncAnimation
 import psutil
 import collections
-import multiprocessing as mp
+from threading import Thread, Lock
 
-
-# mp.freeze_support() -not required
 
 def starting():
     # function to update the data
@@ -48,21 +46,5 @@ def starting():
     plt.show()
 
 
-def creating_single_process():
-    print("Is about to start process")
-    kek = mp.Process(target=starting)
-    kek.start()
-    print(f"started process {mp.current_process()}")
-    return kek
-
-
 if __name__ == "__main__":
-    process = creating_single_process()
-    print("HERE 4 sec")
-
-    time.sleep(5)
-    print(process.is_alive())  # returned True and process will be active until terminated
-
-    # process.terminate()
-
-    print("exit...")
+    pass

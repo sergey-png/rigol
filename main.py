@@ -39,11 +39,11 @@ class RigolAPI:
         if len(self.rm.list_resources()) > 0:
             self.rigol_device_id = self.rm.list_resources()[0]
             self.device = self.rm.open_resource(self.rigol_device_id)
-            self.device.timeout = 10000
+            self.device.timeout = 2000
             self.device.write(":RUN")
         else:
             self.rigol_device_id = None
-        return
+        return self.rigol_device_id
 
     def device_id(self):
         return self.rigol_device_id
@@ -62,7 +62,6 @@ class RigolAPI:
         vertical scale, horizontal timebase, and trigger mode according to the input signal to
         realize optimum waveform display. This command is equivalent to pressing the AUTO key
         at the front panel.
-        :param oscillator: opened device to connect
         """
         self.device.write(":AUToscale")
         return 0
@@ -113,23 +112,26 @@ def get_data_thread(mute: Lock):
                 rigol.device.write(":STOP")
                 data_channel[0] = rigol.get_data(1)
                 break
-            except:
+            except Exception as exp:
+                print(f"Error: {exp}")
                 clearing_device()
-                continue
+
         while True:
             try:
                 data_channel[1] = rigol.get_data(2)
                 break
-            except:
+            except Exception as exp:
+                print(f"Error: {exp}")
                 clearing_device()
-                continue
+
         while True:
             try:
                 phase_delay = rigol.get_rphase()
                 break
-            except:
+            except Exception as exp:
+                print(f"Error: {exp}")
                 clearing_device()
-                continue
+
         mute.release()
 
 
@@ -139,14 +141,13 @@ def clearing_device():
         print("I am still here")
         sleep(0.1)
         try:
-            if rigol.rigol_device_id is None:
+            if rigol.reconnect() is None:
                 continue
             else:
                 print("RECONNECTED!")
                 break
         except Exception as exp:
-            print(f"ОШИБКА ПОДКЛЮЧЕНИЯ = {exp}")
-            continue
+            print(f"Error = {exp}")
 
 
 def draw_figures(y_signal_limits=None):
@@ -162,8 +163,8 @@ def draw_figures(y_signal_limits=None):
         y_axis_1 = data_channel[0]  # Voltage for channel 1
         y_axis_2 = data_channel[1]  # Voltage for channel 2
         if y_axis_1 and y_axis_2:
-            print(f"Амплитуда 1 равна = {max(y_axis_1)-min(y_axis_1)}\n"
-                  f"Амплитуда 2 равна = {max(y_axis_2)-min(y_axis_2)}\n")
+            print(f"Амплитуда 1 равна = {max(y_axis_1) - min(y_axis_1)}\n"
+                  f"Амплитуда 2 равна = {max(y_axis_2) - min(y_axis_2)}\n")
         # clear axis
         ax.cla()
         ax2.cla()
@@ -212,3 +213,5 @@ if __name__ == "__main__":
     print("------------END------------")
 
 # TODO По нажатию кнопки в приложении, мы будем записывать: {ТЕКУЩЕЕ РАССТОЯНИЕ, РАЗНОСТЬ ФАЗ, АМПЛИТУДА 1 и 2 сигналов}
+# TODO НА ОСЦИЛЛОГРАФЕ УЗАНАВАТЬ ЧАСТОТУ при записи в файл
+# TODO При нажатии на кнопку выводить сразу все графики и зависимости, которые получились в файлах ↑↑x↑↑
