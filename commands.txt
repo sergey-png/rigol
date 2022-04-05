@@ -15,7 +15,7 @@ write :MEASure:SETup:PSB CHANel3
 write :MEASure:CLEar ALL
 
 
-#236 page stopped
+#235 page stopped
 (open) write :STOP
 (open) write :WAV:SOUR CHAN1
 (open) write :WAV:MODE RAW
