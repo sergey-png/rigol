@@ -13,6 +13,7 @@ from untitled import Ui_MainWindow
 signal_to_draw = 0
 
 
+#  КЛАСС нашего ОКНА, который запускается в ДОП процессе
 class MyWin(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
@@ -29,6 +30,7 @@ class MyWin(QtWidgets.QMainWindow):
         return
 
 
+#  Функция отрисовки Графиков, должна быть в основном ПОТОКЕ и ОСНОВНОМ ПРОЦЕССЕ
 def starting(main_proc: Process):
     # function to update the data
     def my_function(i):
@@ -70,6 +72,7 @@ def starting(main_proc: Process):
     plt.show()
 
 
+#  Функция ДОП. ПРОЦЕССА
 def main(conn2):
     # TODO Создаем сразу новый поток, в котором начнем обрабатывать конец ТРУБЫ
     app = QtWidgets.QApplication(sys.argv)
@@ -80,6 +83,7 @@ def main(conn2):
     sys.exit(app.exec_())
 
 
+#  Функция ОСНОВНОГО ПРОЦЕССА, как доп. поток
 def connection(conn1, main_proc: Process):
     global signal_to_draw
     while True:
@@ -101,9 +105,7 @@ if __name__ == "__main__":
     connection_thread = Thread(target=connection, daemon=True, args=(Process1, main_window_process,))
     connection_thread.start()
     print("Started app")
-    # TODO Создать поток для получения информации с pipe
     while True:
-        print("still")
         if signal_to_draw == 1 and main_window_process.is_alive():
             starting(main_window_process)
             signal_to_draw = 0
