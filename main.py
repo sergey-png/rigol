@@ -172,7 +172,7 @@ def draw_figures(y_signal_limits=None):
         ax.plot(rphase_data)
         plt.title(label='Signals')
         plt.xlabel("Time (100ns / 1_read)")
-        plt.ylabel("kek")
+        plt.ylabel("Voltage")
         ax.scatter(len(rphase_data) - 1, rphase_data[-1])
         ax.text(len(rphase_data) - 1, rphase_data[-1] + 2, "{}°".format(rphase_data[-1]))
         ax.set_ylim(-180, 180)
