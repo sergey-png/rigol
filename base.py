@@ -179,7 +179,7 @@ class Ui_MainWindow(object):
         self.pushButton_5.setFont(font)
         self.pushButton_5.setObjectName("pushButton_5")
         self.pushButton_8 = QtWidgets.QPushButton(self.widget_2)
-        self.pushButton_8.setGeometry(QtCore.QRect(30, 240, 371, 41))
+        self.pushButton_8.setGeometry(QtCore.QRect(30, 270, 371, 41))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
@@ -198,30 +198,26 @@ class Ui_MainWindow(object):
         self.label_6.setFont(font)
         self.label_6.setAlignment(QtCore.Qt.AlignCenter)
         self.label_6.setObjectName("label_6")
-        self.pushButton_9 = QtWidgets.QPushButton(self.widget_2)
-        self.pushButton_9.setGeometry(QtCore.QRect(30, 300, 371, 41))
+        self.pushButton_11 = QtWidgets.QPushButton(self.widget_2)
+        self.pushButton_11.setGeometry(QtCore.QRect(30, 590, 371, 51))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
+        font.setItalic(True)
         font.setWeight(75)
-        self.pushButton_9.setFont(font)
-        self.pushButton_9.setStyleSheet("border-radius: 20;\n"
-"color: rgb(255, 255, 255);\n"
-"background-color: rgb(0, 0, 127);\n"
-"")
-        self.pushButton_9.setObjectName("pushButton_9")
-        self.pushButton_10 = QtWidgets.QPushButton(self.widget_2)
-        self.pushButton_10.setGeometry(QtCore.QRect(30, 360, 371, 41))
+        self.pushButton_11.setFont(font)
+        self.pushButton_11.setStyleSheet("border-radius: 25;\n"
+"background-color: rgb(255, 0, 0);\n"
+"color: rgb(255, 255, 255);")
+        self.pushButton_11.setObjectName("pushButton_11")
+        self.label_8 = QtWidgets.QLabel(self.widget_2)
+        self.label_8.setGeometry(QtCore.QRect(10, 220, 401, 31))
         font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(True)
-        font.setWeight(75)
-        self.pushButton_10.setFont(font)
-        self.pushButton_10.setStyleSheet("border-radius: 20;\n"
-"color: rgb(255, 255, 255);\n"
-"background-color: rgb(0, 0, 127);\n"
-"")
-        self.pushButton_10.setObjectName("pushButton_10")
+        font.setPointSize(14)
+        font.setItalic(True)
+        self.label_8.setFont(font)
+        self.label_8.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_8.setObjectName("label_8")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1020, 21))
@@ -250,7 +246,7 @@ class Ui_MainWindow(object):
 "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:14pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Диалоговое меню пишет сообщения о выполненных задачах</p></body></html>"))
         self.label_3.setText(_translate("MainWindow", "Диалоговое меню"))
-        self.label_4.setText(_translate("MainWindow", "Диапозон напряжения на графиках (Вольт)"))
+        self.label_4.setText(_translate("MainWindow", "Диапазон напряжения на графиках (Вольт)"))
         self.lineEdit_3.setText(_translate("MainWindow", "1.0"))
         self.pushButton_6.setText(_translate("MainWindow", "Изменить"))
         self.pushButton_7.setText(_translate("MainWindow", "Записать"))
@@ -258,10 +254,10 @@ class Ui_MainWindow(object):
         self.label_7.setText(_translate("MainWindow", "0"))
         self.pushButton.setText(_translate("MainWindow", "Показать графики в Real-Time"))
         self.pushButton_5.setText(_translate("MainWindow", "Открыть файл с записанными данными"))
-        self.pushButton_8.setText(_translate("MainWindow", "Частота от расстояния"))
+        self.pushButton_8.setText(_translate("MainWindow", "Построить зависимости"))
         self.label_6.setText(_translate("MainWindow", "Построение кастомных графиков"))
-        self.pushButton_9.setText(_translate("MainWindow", "Амплитуда от расстояния"))
-        self.pushButton_10.setText(_translate("MainWindow", "Разность фаз от расстояния"))
+        self.pushButton_11.setText(_translate("MainWindow", "Удалить всё из файла записей"))
+        self.label_8.setText(_translate("MainWindow", "частоты, амплитуды и разнности фаз"))
 
 
 if __name__ == "__main__":

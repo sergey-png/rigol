@@ -258,7 +258,7 @@ p, li { white-space: pre-wrap; }
       </font>
      </property>
      <property name="text">
-      <string>Диапозон напряжения на графиках (Вольт)</string>
+      <string>Диапазон напряжения на графиках (Вольт)</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="lineEdit_3">
@@ -428,7 +428,7 @@ color: rgb(255, 255, 255);</string>
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>240</y>
+       <y>270</y>
        <width>371</width>
        <height>41</height>
       </rect>
@@ -447,7 +447,7 @@ background-color: rgb(0, 0, 127);
 </string>
      </property>
      <property name="text">
-      <string>Частота от расстояния</string>
+      <string>Построить зависимости</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_6">
@@ -472,56 +472,52 @@ background-color: rgb(0, 0, 127);
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_9">
+    <widget class="QPushButton" name="pushButton_11">
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>300</y>
+       <y>590</y>
        <width>371</width>
-       <height>41</height>
+       <height>51</height>
       </rect>
      </property>
      <property name="font">
       <font>
        <pointsize>12</pointsize>
        <weight>75</weight>
+       <italic>true</italic>
        <bold>true</bold>
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">border-radius: 20;
-color: rgb(255, 255, 255);
-background-color: rgb(0, 0, 127);
-</string>
+      <string notr="true">border-radius: 25;
+background-color: rgb(255, 0, 0);
+color: rgb(255, 255, 255);</string>
      </property>
      <property name="text">
-      <string>Амплитуда от расстояния</string>
+      <string>Удалить всё из файла записей</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_10">
+    <widget class="QLabel" name="label_8">
      <property name="geometry">
       <rect>
-       <x>30</x>
-       <y>360</y>
-       <width>371</width>
-       <height>41</height>
+       <x>10</x>
+       <y>220</y>
+       <width>401</width>
+       <height>31</height>
       </rect>
      </property>
      <property name="font">
       <font>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
+       <pointsize>14</pointsize>
+       <italic>true</italic>
       </font>
      </property>
-     <property name="styleSheet">
-      <string notr="true">border-radius: 20;
-color: rgb(255, 255, 255);
-background-color: rgb(0, 0, 127);
-</string>
-     </property>
      <property name="text">
-      <string>Разность фаз от расстояния</string>
+      <string>частоты, амплитуды и разнности фаз</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </widget>

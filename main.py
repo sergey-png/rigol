@@ -197,6 +197,7 @@ def draw_figures(y_signal_limits=None):
     ax2.set_facecolor('#DEDEDE')
     # animate
     ani = FuncAnimation(fig, my_function, interval=200)
+    plt.tight_layout()
     plt.show()
 
 
