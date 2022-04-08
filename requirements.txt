@@ -4,3 +4,4 @@ matplotlib==3.5.1
 tqdm==4.63.1
 Rigol1000z==0.2.2
 psutil==5.9.0
+PyQt5==5.15.6

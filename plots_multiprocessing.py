@@ -7,8 +7,8 @@ import collections
 from multiprocessing import Process, Pipe
 from threading import Thread, Lock
 from PyQt5 import QtCore, QtGui, QtWidgets
-import sys, os
-from untitled import Ui_MainWindow
+import sys
+
 
 signal_to_draw = 0
 
