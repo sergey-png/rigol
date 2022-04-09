@@ -198,13 +198,13 @@ class MyWin(QtWidgets.QMainWindow):
             file = open(filename, "r")
             file.close()
         except Exception as exp:
-            print(f"При записи в файл произошла ошибка\n{exp}")
+            self.ui.textBrowser.setText(f"При записи в файл произошла ошибка\n{exp}")
             file = open(filename, "w")
             file.close()
         finally:
             file = open(filename, "r")
             content = file.readlines()
-            print(content)  # For debugging
+            # print(content)  # For debugging
             file.close()
             file = open(filename, "w")
             file.writelines(content)
@@ -235,7 +235,7 @@ class MyWin(QtWidgets.QMainWindow):
             os.startfile(filename)
             self.ui.textBrowser.setText(f"Успешно открыт файл\n{filename}")
         except Exception as exp:
-            self.ui.textBrowser.setText(f"Файл не создан, создаю файл.")
+            self.ui.textBrowser.setText(f"Файл не создан, создаю файл.\n{exp}")
             file = open(filename, "w")
             file.close()
         return
@@ -253,7 +253,7 @@ class MyWin(QtWidgets.QMainWindow):
         for element in data:
             element = element.replace("\n", "")
             data_el = list(map(float, element.split(":")))
-            print(data_el)
+            # print(data_el)
             y_phase.append(data_el[0])
             y_freq1.append(data_el[1])
             y_freq2.append(data_el[2])
@@ -306,7 +306,7 @@ def get_data_thread(mute: Lock):
         sleep(1)
         if get_data == 0:
             continue
-        print('I am thread for channels')
+        # print('I am thread for channels')
         mute.acquire()
         while True:
             if get_data == 0:
@@ -411,9 +411,6 @@ def draw_figures(main_proc: mp.Process):
         rphase_data.append(phase_delay)  # phase_delay
         y_axis_1 = data_channel[0]  # Voltage for channel 1
         y_axis_2 = data_channel[1]  # Voltage for channel 2
-        if y_axis_1 and y_axis_2:
-            print(f"Амплитуда 1 равна = {max(y_axis_1) - min(y_axis_1)}\n"
-                  f"Амплитуда 2 равна = {max(y_axis_2) - min(y_axis_2)}\n")
         # clear axis
         ax.cla()
         ax2.cla()
