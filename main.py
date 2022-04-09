@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import multiprocessing as mp
 from threading import Thread, Lock
-import sys, os
+import sys
+import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 from base import Ui_MainWindow
 
@@ -216,7 +217,7 @@ class MyWin(QtWidgets.QMainWindow):
                    f"{data_dict['Frequency'][0]}:{data_dict['Frequency'][1]}:" \
                    f"{data_dict['Amplitude'][0]}:{data_dict['Amplitude'][1]}:" \
                    f"{data_dict['Distance']}\n"
-            file.write(line)  # TODO ЗАПИСЫВАТЬ ИНФОРМАЦИЮ ОТСЮДА!!!
+            file.write(line)
             file.close()
             self.ui.textBrowser.setText(f"Информация записана в файл!\n"
                                         f"....")
@@ -240,7 +241,6 @@ class MyWin(QtWidgets.QMainWindow):
             file.close()
         return
 
-    # TODO ПРОПИСАТЬ МЕТОД! Помощь есть на сайте указанном в линии 32 файла с командами
     def draw_all(self):
 
         # Using built-in trigonometric function we can directly plot
@@ -248,7 +248,7 @@ class MyWin(QtWidgets.QMainWindow):
         filename = "measurements.txt"
         file = open(filename, "r")
         data = file.readlines()
-        X = np.arange(0, len(data), 1)
+        # X = np.arange(0, len(data), 1)
         y_phase, y_freq1, y_freq2, y_amp1, y_amp2, distance = [], [], [], [], [], []
         for element in data:
             element = element.replace("\n", "")
@@ -507,7 +507,3 @@ if __name__ == "__main__":
         if not main_window_process.is_alive():
             rigol.device.write(":RUN")
             sys.exit()
-
-# TODO По нажатию кнопки в приложении, мы будем записывать: {ТЕКУЩЕЕ РАССТОЯНИЕ, РАЗНОСТЬ ФАЗ, АМПЛИТУДА 1 и 2 сигналов}
-# TODO НА ОСЦИЛЛОГРАФЕ УЗАНАВАТЬ ЧАСТОТУ при записи в файл
-# TODO При нажатии на кнопку выводить сразу все графики и зависимости, которые получились в файлах ↑↑x↑↑
