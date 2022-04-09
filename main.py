@@ -81,6 +81,18 @@ class RigolAPI:
         self.device.write(":RUN")
         return float(self.device.query(":MEASure:ITEM? RPHase"))
 
+    def get_freq(self):
+        data = [0, 0]
+        data[0] = round(1 / float(self.device.query(":MEASure:ITEM? PERiod,CHANnel1")), 4)
+        data[1] = round(1 / float(self.device.query(":MEASure:ITEM? PERiod,CHANnel2")), 4)
+        return data
+
+    def get_amplitude(self):
+        data = [0, 0]
+        data[0] = float(self.device.query(":MEASure:ITEM? VMAX,CHANnel1"))
+        data[1] = float(self.device.query(":MEASure:ITEM? VMAX,CHANnel2"))
+        return data
+
     def get_data(self, channel=1):
         self.device.write(f":WAV:SOUR CHAN{channel}")
         message = self.device.query(":WAV:DATA?")
@@ -91,12 +103,15 @@ class RigolAPI:
 
 
 # --------------- GLOBAL VARIABLES ---------------
-rigol = RigolAPI()
-data_channel = [[], []]
-phase_delay = 0
-signal_to_draw = 0
-graph_amplitude = 1
-get_data = 0
+rigol = RigolAPI()  # Экзмепляр класса Rigol
+data_channel = [[], []]  # Массив, который хранит 1200 точек двух сигналов для отрисовки на графиках
+signal_to_draw = 0  # Сигнал, что можно рисовать графики в реал тайме
+graph_amplitude = 1  # Амплитуда графика, задается в Вольтах
+get_data = 0  # Нужно ли треду получать информацию с осциллографа в бесконечном цикле?
+
+phase_delay = 0  # Разность фаз двух сигналов
+frequency = [0, 0]  # Частота двух сигналов
+amplitude_data = [0, 0]  # Амплитуда двух сигналов
 
 
 # --------------- GLOBAL VARIABLES ---------------
@@ -193,7 +208,15 @@ class MyWin(QtWidgets.QMainWindow):
             file.close()
             file = open(filename, "w")
             file.writelines(content)
-            file.write("1:2:3:4\n")  # TODO ЗАПИСЫВАТЬ ИНФОРМАЦИЮ ОТСЮДА!!!
+            self.conn_data_pipe2.send("get_info")
+            data_dict: dict = self.conn_data_pipe2.recv()
+            data_dict['Distance'] = float(self.ui.lineEdit.text())
+            print(f"data_dict = {data_dict}")
+            line = f"{data_dict['Phase']}:" \
+                   f"{data_dict['Frequency'][0]}:{data_dict['Frequency'][1]}:" \
+                   f"{data_dict['Amplitude'][0]}:{data_dict['Amplitude'][1]}:" \
+                   f"{data_dict['Distance']}\n"
+            file.write(line)  # TODO ЗАПИСЫВАТЬ ИНФОРМАЦИЮ ОТСЮДА!!!
             file.close()
             self.ui.textBrowser.setText(f"Информация записана в файл!\n"
                                         f"....")
@@ -219,23 +242,42 @@ class MyWin(QtWidgets.QMainWindow):
 
     # TODO ПРОПИСАТЬ МЕТОД! Помощь есть на сайте указанном в линии 32 файла с командами
     def draw_all(self):
-        X = np.arange(0, 10, 0.1)
 
         # Using built-in trigonometric function we can directly plot
         # the given cosine wave for the given angles
-        Y1 = np.sin(X)
-        Y2 = np.cos(X)
+        filename = "measurements.txt"
+        file = open(filename, "r")
+        data = file.readlines()
+        X = np.arange(0, len(data), 1)
+        y_phase, y_freq1, y_freq2, y_amp1, y_amp2, distance = [], [], [], [], [], []
+        for element in data:
+            element = element.replace("\n", "")
+            data_el = list(map(float, element.split(":")))
+            print(data_el)
+            y_phase.append(data_el[0])
+            y_freq1.append(data_el[1])
+            y_freq2.append(data_el[2])
+            y_amp1.append(data_el[3])
+            y_amp2.append(data_el[4])
+            distance.append(data_el[5])
 
         figure, axis = plt.subplots(1, 3, figsize=(15, 5), facecolor='#DEDEDE')
-        # For Sine Function
-        axis[0].plot(X, Y1, color='r', label="Channel 1")
-        axis[0].plot(X, Y2, color='b', label="Channel 2")
-        axis[0].set_title("Sine Function")
-        axis[0].legend(loc='upper right', framealpha=0.5)
+        # Разность фаз
+        axis[0].plot(distance, y_phase, color='b', label="Phase CH1 CH2")
+        axis[0].set_title("Разность фаз от расстояния")
+        axis[0].legend(loc='upper left', framealpha=0.5)
 
-        # For Cosine Function
-        axis[2].plot(X, Y2)
-        axis[2].set_title("Cosine Function")
+        # Частота от расстояния
+        axis[1].plot(distance, y_freq1, color='b', label="Channel 1")
+        axis[1].plot(distance, y_freq2, color='r', label="Channel 2")
+        axis[1].set_title("Частота от расстояния")
+        axis[1].legend(loc='upper left', framealpha=0.5)
+
+        # Амплитуда от расстояния
+        axis[2].plot(distance, y_amp1, color='b', label="Channel 1")
+        axis[2].plot(distance, y_amp2, color='r', label="Channel 2")
+        axis[2].set_title("Амплитуда от расстояния")
+        axis[2].legend(loc='upper left', framealpha=0.5)
 
         # Combine all the operations and display
         plt.tight_layout()
@@ -305,6 +347,8 @@ def clearing_device():
     while True:
         print("I am still here")
         sleep(0.1)
+        if get_data == 0:
+            continue
         try:
             if rigol.reconnect() is None:
                 continue
@@ -313,6 +357,46 @@ def clearing_device():
                 break
         except Exception as exp:
             print(f"Error = {exp}")
+
+
+def get_data_once(mute: Lock):
+    global phase_delay, frequency, amplitude_data
+    rigol.device.write(f":WAV:MODE NORMal")
+    rigol.device.write(f":WAV:FORM ASCii")
+    rigol.device.write(":RUN")
+    mute.acquire()
+    while True:
+        try:
+            rigol.device.write(":STOP")
+            amplitude_data = rigol.get_amplitude()
+            break
+        except Exception as exp:
+            print(f"Error: {exp}")
+            clearing_device()
+
+    while True:
+        try:
+            frequency = rigol.get_freq()
+            break
+        except Exception as exp:
+            print(f"Error: {exp}")
+            clearing_device()
+
+    while True:
+        try:
+            phase_delay = rigol.get_rphase()
+            break
+        except Exception as exp:
+            print(f"Error: {exp}")
+            clearing_device()
+    data = {
+        'Phase': phase_delay,
+        'Frequency': frequency,
+        'Amplitude': amplitude_data,
+        'Distance': 0
+    }
+    mute.release()
+    return data
 
 
 def draw_figures(main_proc: mp.Process):
@@ -382,7 +466,6 @@ def connection(conn1):
         sleep(0.1)
         print("Waiting for Data from Child Process")
         data: str = conn1.recv()
-        print(data)
         # Принимаем запросы от Child процесса - это GUI приложение
         if data == "start":
             signal_to_draw = 1
@@ -391,9 +474,15 @@ def connection(conn1):
             graph_amplitude = float(data)
             print(f"Получена измененная амплитуда = {graph_amplitude}")
         elif data == "auto_scale":
-            get_data = 0
-            auto_scale(mutex)
-            get_data = 1
+            if get_data == 1:
+                get_data = 0
+                auto_scale(mutex)
+                get_data = 1
+            else:
+                auto_scale(mutex)
+        elif data == "get_info":
+            data_dict = get_data_once(mutex)
+            conn1.send(data_dict)
 
 
 if __name__ == "__main__":
@@ -419,6 +508,7 @@ if __name__ == "__main__":
             get_data = 0
             signal_to_draw = 0
         if not main_window_process.is_alive():
+            rigol.device.write(":RUN")
             sys.exit()
 
 # TODO По нажатию кнопки в приложении, мы будем записывать: {ТЕКУЩЕЕ РАССТОЯНИЕ, РАЗНОСТЬ ФАЗ, АМПЛИТУДА 1 и 2 сигналов}

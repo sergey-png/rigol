@@ -30,3 +30,6 @@ python -m PyQt5.uic.pyuic -x base.ui -o base.py
 
 Для отрисовки графиков!
 https://www.geeksforgeeks.org/plot-multiple-plots-in-matplotlib/
+
+
+{'Phase': 22.32, 'Frequency': [1000.0, 2008.0321], 'Amplitude': [0.56, 1.12], 'Distance': 0.0}
