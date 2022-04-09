@@ -12,7 +12,7 @@ from threading import Thread, Lock
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
 from base import Ui_MainWindow
-import subprocess
+
 
 # GLOBAL VARIABLES
 signal_to_draw = 0
@@ -125,11 +125,16 @@ class MyWin(QtWidgets.QMainWindow):
 
     def open_current_file(self):
         filename = "measurements.txt"
-        os.startfile(filename)
-        self.ui.textBrowser.setText(f"Успешно открыт файл\n{filename}")
+        try:
+            os.startfile(filename)
+            self.ui.textBrowser.setText(f"Успешно открыт файл\n{filename}")
+        except Exception as exp:
+            self.ui.textBrowser.setText(f"Файл не создан, создаю файл.")
+            file = open(filename, "w")
+            file.close()
         return
 
-    # TODO ПРОПИСАТЬ МЕТОДЫ! Помощь есть на сайте указанном в линии 32 файла с командами
+    # TODO ПРОПИСАТЬ МЕТОД! Помощь есть на сайте указанном в линии 32 файла с командами
     def draw_all(self):
         X = np.arange(0, 10, 0.1)
 
@@ -153,8 +158,7 @@ class MyWin(QtWidgets.QMainWindow):
         plt.tight_layout()
         plt.show()
 
-        self.ui.textBrowser.setText("Выведен график зависимости\n"
-                                    "Частоты от Расстояния")
+        self.ui.textBrowser.setText("Выведены графики зависимости")
 
 
 #  Функция отрисовки Графиков, должна быть в основном ПОТОКЕ и ОСНОВНОМ ПРОЦЕССЕ
