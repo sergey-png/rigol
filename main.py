@@ -198,31 +198,35 @@ class MyWin(QtWidgets.QMainWindow):
     def write_info_to_file(self):
         filename = "measurements.txt"
         try:
-            file = open(filename, "r")
-            file.close()
+            with open(filename, "r") as file:
+                file.close()
         except Exception as exp:
             self.ui.textBrowser.setText(f"При записи в файл произошла ошибка\n{exp}")
-            file = open(filename, "w")
-            file.close()
+            with open(filename, "w") as file:
+                file.close()
+
         finally:
-            file = open(filename, "r")
-            content = file.readlines()
-            # print(content)  # For debugging
-            file.close()
-            file = open(filename, "w")
-            file.writelines(content)
-            self.conn_data_pipe2.send("get_info")
-            data_dict: dict = self.conn_data_pipe2.recv()
-            data_dict['Distance'] = float(self.ui.lineEdit.text())
-            print(f"data_dict = {data_dict}")
-            line = f"{data_dict['Phase']}:" \
-                   f"{data_dict['Frequency'][0]}:{data_dict['Frequency'][1]}:" \
-                   f"{data_dict['Amplitude'][0]}:{data_dict['Amplitude'][1]}:" \
-                   f"{data_dict['Distance']}\n"
-            file.write(line)
-            file.close()
-            self.ui.textBrowser.setText(f"Информация записана в файл!\n"
-                                        f"....")
+            with open(filename, "r") as file:
+                content = file.readlines()
+                # print(content)  # For debugging
+                if content:
+                    with open("last_save.txt", "w") as file2:
+                        file2.writelines(content)
+
+            with open(filename, "w") as file:
+                file.writelines(content)
+                self.conn_data_pipe2.send("get_info")
+                data_dict: dict = self.conn_data_pipe2.recv()
+                data_dict['Distance'] = float(self.ui.lineEdit.text())
+                print(f"data_dict = {data_dict}")
+                line = f"{data_dict['Phase']}:" \
+                       f"{data_dict['Frequency'][0]}:{data_dict['Frequency'][1]}:" \
+                       f"{data_dict['Amplitude'][0]}:{data_dict['Amplitude'][1]}:" \
+                       f"{data_dict['Distance']}\n"
+                file.write(line)
+                file.close()
+                self.ui.textBrowser.setText(f"Информация записана в файл!\n"
+                                            f"....")
         return
 
     def delete_from_file(self):
@@ -376,21 +380,21 @@ def get_data_once(mute: Lock):
             print(f"Error: {exp}")
             clearing_device()
 
-    while True:
-        try:
-            frequency = rigol.get_freq()
-            break
-        except Exception as exp:
-            print(f"Error: {exp}")
-            clearing_device()
+    # while True:
+    #     try:
+    #         frequency = rigol.get_freq()
+    #         break
+    #     except Exception as exp:
+    #         print(f"Error: {exp}")
+    #         clearing_device()
 
-    while True:
-        try:
-            phase_delay = rigol.get_rphase()
-            break
-        except Exception as exp:
-            print(f"Error: {exp}")
-            clearing_device()
+    # while True:
+    #     try:
+    #         phase_delay = rigol.get_rphase()
+    #         break
+    #     except Exception as exp:
+    #         print(f"Error: {exp}")
+    #         clearing_device()
     data = {
         'Phase': phase_delay,
         'Frequency': frequency,
