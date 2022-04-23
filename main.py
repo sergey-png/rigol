@@ -266,6 +266,10 @@ class MyWin(QtWidgets.QMainWindow):
             y_amp1.append(data_el[3])
             y_amp2.append(data_el[4])
             distance.append(data_el[5])
+        distance.reverse()
+        y_amp1.reverse()
+        print(y_amp1)
+        print(distance)
 
         figure, axis = plt.subplots(1, 3, figsize=(15, 5), facecolor='#DEDEDE')
         # Разность фаз
@@ -281,10 +285,10 @@ class MyWin(QtWidgets.QMainWindow):
 
         # Амплитуда от расстояния
         axis[2].plot(distance, y_amp1, color='b', label="Channel 1")
-        axis[2].plot(distance, y_amp2, color='r', label="Channel 2")
+        # axis[2].plot(distance, y_amp2, color='r', label="Channel 2")  # Второй сигнал не измеряется поэтому коммент
         axis[2].set_title("Амплитуда от расстояния")
         axis[2].legend(loc='upper left', framealpha=0.5)
-
+        # TODO Сделать экспорт в эксель
         # Combine all the operations and display
         plt.tight_layout()
         plt.show()
