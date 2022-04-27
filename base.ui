@@ -514,7 +514,7 @@ color: rgb(255, 255, 255);</string>
       </font>
      </property>
      <property name="text">
-      <string>частоты, амплитуды и разнности фаз</string>
+      <string>частоты, амплитуды и разности фаз</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -554,7 +554,7 @@ color: rgb(255, 255, 255);
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

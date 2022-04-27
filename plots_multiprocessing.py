@@ -110,7 +110,7 @@ class MyWin(QtWidgets.QMainWindow):
             file.close()
             file = open(filename, "w")
             file.writelines(content)
-            file.write("1:2:3:4\n")  # TODO ЗАПИСЫВАТЬ ИНФОРМАЦИЮ ОТСЮДА!!!
+            file.write("1:2:3:4\n")
             file.close()
             self.ui.textBrowser.setText(f"Информация записана в файл!\n"
                                         f"....")
@@ -134,7 +134,7 @@ class MyWin(QtWidgets.QMainWindow):
             file.close()
         return
 
-    # TODO ПРОПИСАТЬ МЕТОД! Помощь есть на сайте указанном в линии 32 файла с командами
+
     def draw_all(self):
         X = np.arange(0, 10, 0.1)
 
@@ -186,7 +186,7 @@ def starting(main_proc: Process):
         ax1.scatter(len(ram) - 1, ram[-1])
         ax1.text(len(ram) - 1, ram[-1] + 2, "{}%".format(ram[-1]))
 
-        ax1.set_ylim(-graph_amplitude, graph_amplitude)  # TODO Изменяем Амплитуду сигналов
+        ax1.set_ylim(-graph_amplitude, graph_amplitude)
 
     # start collections with zeros
     cpu = collections.deque(np.zeros(50))

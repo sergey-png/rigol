@@ -248,10 +248,10 @@ class MyWin(QtWidgets.QMainWindow):
             file.close()
         return
 
-    def draw_all(self):
+    def auto_scale(self):
+        self.conn_data_pipe2.send("auto_scale")
 
-        # Using built-in trigonometric function we can directly plot
-        # the given cosine wave for the given angles
+    def draw_all(self):
         filename = "measurements.txt"
         file = open(filename, "r")
         data = file.readlines()
@@ -289,15 +289,15 @@ class MyWin(QtWidgets.QMainWindow):
         # axis[2].plot(distance, y_amp2, color='r', label="Channel 2")  # Второй сигнал не измеряется поэтому коммент
         axis[2].set_title("Амплитуда от расстояния")
         axis[2].legend(loc='upper left', framealpha=0.5)
-        # TODO Сделать экспорт в эксель
+
         # Combine all the operations and display
         plt.tight_layout()
         plt.show()
 
         self.ui.textBrowser.setText("Выведены графики зависимости")
 
-    def auto_scale(self):
-        self.conn_data_pipe2.send("auto_scale")
+        # TODO Сделать экспорт в эксель
+        return
 
 
 # ----------------------------------------------------------------------------------------------------------
