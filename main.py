@@ -106,6 +106,7 @@ class RigolAPI:
 # --------------- GLOBAL VARIABLES ---------------
 rigol = RigolAPI()  # Экзмепляр класса Rigol
 if rigol.device is None:
+    print("No device found")
     sys.exit(0)
 data_channel = [[], []]  # Массив, который хранит 1200 точек двух сигналов для отрисовки на графиках
 signal_to_draw = 0  # Сигнал, что можно рисовать графики в реал тайме
