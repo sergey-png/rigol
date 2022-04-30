@@ -105,9 +105,9 @@ class RigolAPI:
 
 # --------------- GLOBAL VARIABLES ---------------
 rigol = RigolAPI()  # Экзмепляр класса Rigol
-if rigol.device is None:
-    print("No device found")
-    sys.exit(0)
+# if rigol.device is None:
+#     print("No device found")
+#     sys.exit(0)
 data_channel = [[], []]  # Массив, который хранит 1200 точек двух сигналов для отрисовки на графиках
 signal_to_draw = 0  # Сигнал, что можно рисовать графики в реал тайме
 graph_amplitude = 1  # Амплитуда графика, задается в Вольтах
@@ -284,10 +284,10 @@ class MyWin(QtWidgets.QMainWindow):
         axis[1].set_title("Частота от расстояния")
         axis[1].legend(loc='upper left', framealpha=0.5)
 
-        # Амплитуда от расстояния
-        axis[2].plot(distance, y_amp1, color='b', label="Channel 1")
+        # Расстояние от напряжения
+        axis[2].plot(y_amp1,distance, color='b', label="Channel 1")
         # axis[2].plot(distance, y_amp2, color='r', label="Channel 2")  # Второй сигнал не измеряется поэтому коммент
-        axis[2].set_title("Амплитуда от расстояния")
+        axis[2].set_title("Расстояние от напряжения")
         axis[2].legend(loc='upper left', framealpha=0.5)
 
         # Combine all the operations and display
