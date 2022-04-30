@@ -198,12 +198,20 @@ class MyWin(QtWidgets.QMainWindow):
 
     def write_info_to_file(self):
         filename = "measurements.txt"
+        filename2 = "measurements_all_points.txt"
         try:
             with open(filename, "r") as file:
                 file.close()
         except Exception as exp:
             self.ui.textBrowser.setText(f"При записи в файл произошла ошибка\n{exp}")
             with open(filename, "w") as file:
+                file.close()
+        try:
+            with open(filename2, "r") as file:
+                file.close()
+        except Exception as exp:
+            self.ui.textBrowser.setText(f"При записи в файл произошла ошибка\n{exp}")
+            with open(filename2, "w") as file:
                 file.close()
 
         finally:
@@ -214,19 +222,38 @@ class MyWin(QtWidgets.QMainWindow):
                     with open("last_save.txt", "w") as file2:
                         file2.writelines(content)
 
+            with open(filename2, "r") as file:
+                content2 = file.readlines()
+                # print(content)  # For debugging
+                if content2:
+                    with open("last_save_all_points.txt", "w") as file2:
+                        file2.writelines(content2)
+            measuring_data = []
+            with open(filename2, "w") as file:
+                for i in range(5):  # 5 раз считываем данные с осциллографа и записываем в measurements_all_points.txt
+                    sleep(0.1)
+                    self.conn_data_pipe2.send("get_info")
+                    data_dict: dict = self.conn_data_pipe2.recv()
+                    data_dict['Distance'] = float(self.ui.lineEdit.text())
+                    print(f"data_dict = {data_dict}")
+                    line = f"{data_dict['Phase']}:" \
+                           f"{data_dict['Frequency'][0]}:{data_dict['Frequency'][1]}:" \
+                           f"{data_dict['Amplitude'][0]}:{data_dict['Amplitude'][1]}:" \
+                           f"{data_dict['Distance']}\n"
+                    file.write(line)
+                    measuring_data.append(float(data_dict['Amplitude'][0]))
+                    self.ui.textBrowser.setText(f"Записано в файл {i+1} измерений из 5")
+
             with open(filename, "w") as file:
                 file.writelines(content)
-                self.conn_data_pipe2.send("get_info")
-                data_dict: dict = self.conn_data_pipe2.recv()
-                data_dict['Distance'] = float(self.ui.lineEdit.text())
-                print(f"data_dict = {data_dict}")
+                average = sum(measuring_data) / len(measuring_data)
+
                 line = f"{data_dict['Phase']}:" \
                        f"{data_dict['Frequency'][0]}:{data_dict['Frequency'][1]}:" \
-                       f"{data_dict['Amplitude'][0]}:{data_dict['Amplitude'][1]}:" \
+                       f"{average}:{data_dict['Amplitude'][1]}:" \
                        f"{data_dict['Distance']}\n"
                 file.write(line)
-                file.close()
-                self.ui.textBrowser.setText(f"Информация записана в файл!\n"
+                self.ui.textBrowser.setText(f"Информация записана в файл measurements.txt!\n"
                                             f"....")
         return
 
@@ -234,7 +261,10 @@ class MyWin(QtWidgets.QMainWindow):
         filename = "measurements.txt"
         file = open(filename, "w")
         file.close()
-        self.ui.textBrowser.setText(f"Успешно удалены все данные из файла!")
+        filename2 = "measurements_all_points.txt"
+        file = open(filename2, "w")
+        file.close()
+        self.ui.textBrowser.setText(f"Файлы очищены!")
         return
 
     def open_current_file(self):
