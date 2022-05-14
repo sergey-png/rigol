@@ -8,7 +8,7 @@ import multiprocessing as mp
 from threading import Thread, Lock
 import sys
 import os
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtWidgets
 from base import Ui_MainWindow
 
 # visa.log_to_screen()
@@ -47,7 +47,7 @@ class RigolAPI:
             self.rigol_device_id = None
         return self.rigol_device_id
 
-    def device_id(self):
+    def get_device_id(self):
         return self.rigol_device_id
 
     def resources_list(self):
@@ -242,7 +242,7 @@ class MyWin(QtWidgets.QMainWindow):
                            f"{data_dict['Distance']}\n"
                     file.write(line)
                     measuring_data.append(float(data_dict['Amplitude'][0]))
-                    self.ui.textBrowser.setText(f"Записано в файл {i+1} измерений из 5")
+                    self.ui.textBrowser.setText(f"Записано в файл {i + 1} измерений из 5")
 
             with open(filename, "w") as file:
                 file.writelines(content)
@@ -314,11 +314,27 @@ class MyWin(QtWidgets.QMainWindow):
         axis[1].set_title("Частота от расстояния")
         axis[1].legend(loc='upper left', framealpha=0.5)
 
+        y_amp1 = [1.1389, 1.1304, 1.1215, 1.1134, 1.1044, 1.0955, 1.0866, 1.0781, 1.0687, 1.0599, 1.0510, 1.0412,
+                  1.0314, 1.0225, 1.0125, 1.0028, 0.9932, 0.9831, 0.9712, 0.9623, 0.9536, 0.9422, 0.9323, 0.9206,
+                  0.9105, 0.8985, 0.8861, 0.8751, 0.8629, 0.8501, 0.8377, 0.8256, 0.8126, 0.8005, 0.7861, 0.7723,
+                  0.7589, 0.7446, 0.7298, 0.7144, 0.6988, 0.6823, 0.6651, 0.6481, 0.6301, 0.6102, 0.5906, 0.5695,
+                  0.5481, 0.5250, 0.4989, 0.4711, 0.4391, 0.4021, 0.3598]
+
+        distance = [14.00, 13.80, 13.60, 13.40, 13.20, 13.00, 12.80, 12.60, 12.40, 12.20, 12.00, 11.80, 11.60, 11.40,
+                    11.20, 11.00, 10.80, 10.60, 10.40, 10.20, 10.00, 9.80, 9.60, 9.40, 9.20, 9.00, 8.80, 8.60, 8.40,
+                    8.20, 8.00, 7.80, 7.60, 7.40, 7.20, 7.00, 6.80, 6.60, 6.40, 6.20, 6.00, 5.80, 5.60, 5.40, 5.20,
+                    5.00, 4.80, 4.60, 4.40, 4.20, 4.00, 3.80, 3.60, 3.40, 3.20]
+        print(len(distance) == len(y_amp1))
+        distance.reverse()
+        y_amp1.reverse()
+
         # Расстояние от напряжения
-        axis[2].plot(y_amp1,distance, color='b', label="Channel 1")
+        axis[2].plot(y_amp1, distance, color='b', label="Channel 1")
         # axis[2].plot(distance, y_amp2, color='r', label="Channel 2")  # Второй сигнал не измеряется поэтому коммент
         axis[2].set_title("Расстояние от напряжения")
         axis[2].legend(loc='upper left', framealpha=0.5)
+        axis[2].set_xlabel("Напряжение, В")
+        axis[2].set_ylabel("Расстояние, мм")
 
         # Combine all the operations and display
         plt.tight_layout()
